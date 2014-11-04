@@ -12,7 +12,7 @@ def createItemsDict():
     itemRestPrice = {}
     itemPrice = {}
     item = {}
-    cr = csv.reader(open("sample_data_5.csv", "rb"))
+    cr = csv.reader(open("/gsunil/py-learn/py-test-loc/report/sample_data_5.csv", "rb"))
     for row in cr:
         if row:
             row[0] = int(row[0])
@@ -40,32 +40,65 @@ def comboSrch(allPriceDet, asked):
         allPrice = val.keys()
         items = []
         itemsPrice = []
-        itemSubPri = []
+        itemSubPric = []
         thePric = dict([(i, 0) for i in asked])
+        import pdb; pdb.set_trace()
         while allPrice != []:
             minV = min(allPrice)
-            temp = [kk for k in val[minV].values() for kk in k if kk in asked]
-            if temp:
-                tempPrice = len(val[minV]) * minV
-                avgVal = minV/len(val[minV].values())
-                for i in temp:
-                    if thePric[i]:
-                        if avgVal < thePric[i]:
-                            thePric[i] = avgVal  # val is min then the existing so replacing
-                            # t = tempPrice - avgVal  # have to chk
-                            # itemSubPri.append(avgVal)  # added to list to substracting the val
+            for idx1, ele in val[minV].iteritems():
+                avgVal = float(minV)/float(len(ele))
+                # priceSetwise = []
+                modItm = []
+                rm = 0
+                for ech in [ii for ii in ele if ii in asked]:
+                    if thePric[ech]:
+                        if avgVal < thePric[ech]:
+                            modItm.append(ech)
+                            rm = 1
+                            # itemsPrice.remove(thePric[ech])
+                            thePric[ech] = avgVal
+                        else:
+                            pass
                     else:
-                        thePric[i] = avgVal
-                if avgVal <= sum([thePric[i] or 0 for i in temp]):
-                    items.extend(temp)
-                    itemsPrice.append(tempPrice)
+                        thePric[ech] = avgVal
+                        modItm.append(ech)
+                        # itemsPrice.append(minV)
+                        items.append(ech)
+                    if len(set(modItm)) == len(ele):
+                        if rm:
+                            itemSubPric.append(minV)
+                        else:
+                            itemsPrice.append(minV)
+
             if set(items) == asked:
-                ret[idx] = sum(itemsPrice) - sum(itemSubPri)
+                ret[idx] = sum(itemsPrice) - sum(itemSubPric)
                 allPrice = []
             else:
                 allPrice.remove(minV)
-    ret = dict([(i, j) for i, j in ret.iteritems() if j == min(ret.values())])
-    return ret
+    print ret
+    #         temp = [kk for k in val[minV].values() for kk in k if kk in asked]
+    #         if temp:
+    #             # import pdb; pdb.set_trace()
+    #             # tempPrice = len(val[minV]) * minV
+    #             avgVal = minV/len(val[minV].values())  # shud be per value not all the values
+    #             for i in temp:
+    #                 if thePric[i]:
+    #                     if avgVal < thePric[i]:
+    #                         thePric[i] = avgVal  # val is min then the existing so replacing
+    #                         # t = tempPrice - avgVal  # have to chk
+    #                         # itemSubPri.append(minV)  # added to list to substracting the val
+    #                 else:
+    #                     thePric[i] = avgVal
+    #             if avgVal <= sum([thePric[i] or 0 for i in temp]):
+    #                 items.extend(temp)
+    #                 itemsPrice.append(minV)
+    #         if set(items) == asked:
+    #             ret[idx] = sum(itemsPrice) - sum(itemSubPri)
+    #             allPrice = []
+    #         else:
+    #             allPrice.remove(minV)
+    # ret = dict([(i, j) for i, j in ret.iteritems() if j == min(ret.values())])
+    # return ret
 
 
 def itemsAtOnePlace(itemRestPrice, asked):
@@ -97,7 +130,7 @@ def main():
     pprint.pprint(itemRestPrice)
     res_set_sing = itemsAtOnePlace(itemRestPrice, asked)
     res_set_srch = comboSrch(itemRestPrice, asked)
-    print res_set_sing, res_set_srch
+    # print res_set_sing, res_set_srch
 
 if __name__ == "__main__":
     sys.exit(main())
