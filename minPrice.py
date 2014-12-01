@@ -2,7 +2,6 @@
 
 import csv
 import sys
-import pprint
 
 
 # http://www.linuxtopia.org/online_books/programming_books/python_programming/python_ch16s03.html
@@ -12,7 +11,7 @@ def createItemsDict():
     itemRestPrice = {}
     itemPrice = {}
     item = {}
-    cr = csv.reader(open("/gsunil/py-learn/py-test-loc/report/sample_data_5.csv", "rb"))
+    cr = csv.reader(open("/gsunil/py-learn/py-test-loc/report/jurgensville_testcase_98441.csv", "rb"))
     for row in cr:
         if row:
             row[0] = int(row[0])
@@ -34,71 +33,39 @@ def createItemsDict():
     return itemRestPrice
 
 
-def comboSrch(allPriceDet, asked):
-    ret = {}
-    for idx, val in allPriceDet.iteritems():
-        allPrice = val.keys()
-        items = []
-        itemsPrice = []
-        itemSubPric = []
-        thePric = dict([(i, 0) for i in asked])
-        import pdb; pdb.set_trace()
-        while allPrice != []:
-            minV = min(allPrice)
-            for idx1, ele in val[minV].iteritems():
-                avgVal = float(minV)/float(len(ele))
-                # priceSetwise = []
-                modItm = []
-                rm = 0
-                for ech in [ii for ii in ele if ii in asked]:
-                    if thePric[ech]:
-                        if avgVal < thePric[ech]:
-                            modItm.append(ech)
-                            rm = 1
-                            # itemsPrice.remove(thePric[ech])
-                            thePric[ech] = avgVal
-                        else:
-                            pass
-                    else:
-                        thePric[ech] = avgVal
-                        modItm.append(ech)
-                        # itemsPrice.append(minV)
-                        items.append(ech)
-                    if len(set(modItm)) == len(ele):
-                        if rm:
-                            itemSubPric.append(minV)
-                        else:
-                            itemsPrice.append(minV)
+def comboSelect(price, items, items_det, asked):
+    price_list = []
+    for pri, itmd in items_det.iteritems():
+        temp = []
+        c = 0
+        for itm in itmd:
+            c += 1
+            temp.extend(items)
+            temp.extend(itmd[itm])
+            if asked.issubset(set(temp)):
+                t = (pri*c) + price
+                price_list.append(t)
+    return min(price_list) if price_list else 0
 
-            if set(items) == asked:
-                ret[idx] = sum(itemsPrice) - sum(itemSubPric)
-                allPrice = []
-            else:
-                allPrice.remove(minV)
-    print ret
-    #         temp = [kk for k in val[minV].values() for kk in k if kk in asked]
-    #         if temp:
-    #             # import pdb; pdb.set_trace()
-    #             # tempPrice = len(val[minV]) * minV
-    #             avgVal = minV/len(val[minV].values())  # shud be per value not all the values
-    #             for i in temp:
-    #                 if thePric[i]:
-    #                     if avgVal < thePric[i]:
-    #                         thePric[i] = avgVal  # val is min then the existing so replacing
-    #                         # t = tempPrice - avgVal  # have to chk
-    #                         # itemSubPri.append(minV)  # added to list to substracting the val
-    #                 else:
-    #                     thePric[i] = avgVal
-    #             if avgVal <= sum([thePric[i] or 0 for i in temp]):
-    #                 items.extend(temp)
-    #                 itemsPrice.append(minV)
-    #         if set(items) == asked:
-    #             ret[idx] = sum(itemsPrice) - sum(itemSubPri)
-    #             allPrice = []
-    #         else:
-    #             allPrice.remove(minV)
-    # ret = dict([(i, j) for i, j in ret.iteritems() if j == min(ret.values())])
-    # return ret
+
+def comboSrch(allPriceDet, asked):
+    id_minprice = {}
+    res_ans = {}
+    for idx, val in allPriceDet.iteritems():
+        price_vals = []
+        for pri, itmd in val.iteritems():
+            for itm in itmd:
+                vl = comboSelect(pri, itmd[itm], val, asked)
+                if vl:
+                    price_vals.append(vl)
+                    id_minprice[idx] = price_vals
+    res_det = dict([(i, min(id_minprice[i])) for i in id_minprice])
+    if res_det:
+        res_minV = min(res_det.values())
+        for i, j in res_det.iteritems():
+            if res_minV == j:
+                res_ans = {i: j}
+    return res_ans
 
 
 def itemsAtOnePlace(itemRestPrice, asked):
@@ -127,10 +94,27 @@ def main():
     of the items in a hotel"""
     asked = set([i.lower().strip() for i in sys.argv[1:]])
     itemRestPrice = createItemsDict()
-    pprint.pprint(itemRestPrice)
     res_set_sing = itemsAtOnePlace(itemRestPrice, asked)
     res_set_srch = comboSrch(itemRestPrice, asked)
-    # print res_set_sing, res_set_srch
+    f_res = {}
+    if res_set_sing and res_set_srch:
+        minV = min(res_set_sing.values(), res_set_srch.values())
+        for i, j in res_set_sing.iteritems():
+            if j == minV[0]:
+                f_res[i] = j
+        for i, j in res_set_srch.iteritems():
+            if j == minV[0]:
+                f_res[i] = j
+    elif res_set_sing and not res_set_srch:
+        f_res = res_set_sing
+    elif res_set_srch and not res_set_sing:
+        f_res = res_set_srch
+    else:
+        "I think to try again"
+    if not f_res:
+        print "No Result"
+    else:
+        print f_res, '<--- ID, Pri'
 
 if __name__ == "__main__":
     sys.exit(main())
