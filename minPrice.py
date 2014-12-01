@@ -114,7 +114,7 @@ def main():
     if not f_res:
         print "No Result"
     else:
-        print f_res, '<--- ID, Pri'
+        print '{Restaurant ID: Price} = ', f_res
 
 if __name__ == "__main__":
     sys.exit(main())
