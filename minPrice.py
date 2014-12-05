@@ -2,17 +2,17 @@
 
 import csv
 import sys
+import os
 
 
 # http://www.linuxtopia.org/online_books/programming_books/python_programming/python_ch16s03.html
 # http://www.python-course.eu/sets_frozensets.php
 # http://www.dotnetperls.com/set-python
-def createItemsDict():
+def createItemsDict(content):
     itemRestPrice = {}
     itemPrice = {}
     item = {}
-    cr = csv.reader(open("/gsunil/py-learn/py-test-loc/report/jurgensville_testcase_98441.csv", "rb"))
-    for row in cr:
+    for row in content:
         if row:
             row[0] = int(row[0])
             row[1] = float(row[1])
@@ -92,29 +92,35 @@ def main():
     """Method to find less price
     either single or in combo selection
     of the items in a hotel"""
-    asked = set([i.lower().strip() for i in sys.argv[1:]])
-    itemRestPrice = createItemsDict()
-    res_set_sing = itemsAtOnePlace(itemRestPrice, asked)
-    res_set_srch = comboSrch(itemRestPrice, asked)
-    f_res = {}
-    if res_set_sing and res_set_srch:
-        minV = min(res_set_sing.values(), res_set_srch.values())
-        for i, j in res_set_sing.iteritems():
-            if j == minV[0]:
-                f_res[i] = j
-        for i, j in res_set_srch.iteritems():
-            if j == minV[0]:
-                f_res[i] = j
-    elif res_set_sing and not res_set_srch:
-        f_res = res_set_sing
-    elif res_set_srch and not res_set_sing:
-        f_res = res_set_srch
-    else:
-        "I think to try again"
-    if not f_res:
-        print "No Result"
-    else:
-        print '{Restaurant ID: Price} = ', f_res
+    file_name = sys.argv[1]
+    path = os.path.abspath(file_name)
+    asked = set([i.lower().strip() for i in sys.argv[2:]])
+    try:
+        content = csv.reader(open(path, "rb"))
+        itemRestPrice = createItemsDict(content)
+        res_set_sing = itemsAtOnePlace(itemRestPrice, asked)
+        res_set_srch = comboSrch(itemRestPrice, asked)
+        f_res = {}
+        if res_set_sing and res_set_srch:
+            minV = min(res_set_sing.values(), res_set_srch.values())
+            for i, j in res_set_sing.iteritems():
+                if j == minV[0]:
+                    f_res[i] = j
+            for i, j in res_set_srch.iteritems():
+                if j == minV[0]:
+                    f_res[i] = j
+        elif res_set_sing and not res_set_srch:
+            f_res = res_set_sing
+        elif res_set_srch and not res_set_sing:
+            f_res = res_set_srch
+        else:
+            "I think to try again"
+        if not f_res:
+            print "No Result"
+        else:
+            print '{Restaurant ID: Price} = ', f_res
+    except IOError:
+        print "Re-try, placing the correct .csv file in %s " % os.getcwd()
 
 if __name__ == "__main__":
     sys.exit(main())
