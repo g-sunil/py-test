@@ -1,6 +1,7 @@
 class A:
     def who_am_i(self):
         print("I am a A")
+    pass
 
 
 class B(A):
@@ -12,6 +13,7 @@ class B(A):
 class C(A):
     def who_am_i(self):
         print("I am a C")
+    pass
 
 
 class D(B, C):
@@ -21,6 +23,3 @@ class D(B, C):
 
 d1 = D()
 d1.who_am_i()
-
-
-# Python 2.2 instead does not raise an exception, but chooses an ad hoc ordering (CABXYO in this case).
