@@ -87,7 +87,7 @@ def write_to_file(**result_data):
                                         text(str(v))
 
     with open(os.getcwd() + os.sep + 'reports' + os.sep + 'jtrans-report.html', 'w') as file_buffer:
-        file_buffer.write(doc.getvalue().decode("utf-8"))
+        file_buffer.write(doc.getvalue())
         ###############################
 
 if __name__ == '__main__':
