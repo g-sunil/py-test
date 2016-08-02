@@ -28,12 +28,14 @@ def main():
             # Gets all the spans in the modal-header div
             all_text_tags = parsed_doc.getroot().xpath('//text()')  # Gets all the text tags
             # filter out the \n and interpolations '{{' and '}}' new lines -- EOL and get the parent tag
-            # re.sub('[^A-Za-z0-9]+', '', mystring) -- remove all the special charators
+            # Ignore text in script and style tags
+            # re.sub('[^A-Za-z]+', '', txt) -- remove all the special charators and numbers which needs no translations
             free_text_tags = map(lambda tag: tag.getparent(),
                                  filter(lambda tst: re.sub('[^A-Za-z]+', '', tst),
                                         filter(lambda txt: txt.strip() and
-                                               not(txt.startswith('{{') or 'X' == txt) and
-                                               txt.getparent().tag != 'style' and isinstance(txt, str),
+                                               '{{' not in txt and
+                                               txt.getparent().tag not in ('style', 'script') and
+                                               isinstance(txt, str),
                                                all_text_tags)))
 
             for tag in free_text_tags:
